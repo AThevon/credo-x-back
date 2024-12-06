@@ -13,6 +13,24 @@ class CategoryController extends Controller
    /**
     * Display a listing of the resource.
     */
+
+    public function getByType(string $type)
+    {
+        // Vérifie si le type est valide en utilisant l'enum
+        if (!CategoryType::tryFrom($type)) {
+            return response()->json([
+                'message' => 'Type invalide. Les valeurs acceptées sont income ou expense.',
+            ], 400);
+        }
+    
+        // Filtrer les catégories par type
+        $categories = Category::where('type', $type)->get();
+    
+        // Retourner les catégories en JSON
+        return response()->json($categories);
+    }
+    
+
    public function index()
    {
       $defaultCategories = Category::where('is_default', true)->get(); // Catégories par défaut
