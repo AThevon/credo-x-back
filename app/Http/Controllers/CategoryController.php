@@ -77,10 +77,6 @@ class CategoryController extends Controller
     */
    public function show(Category $category)
    {
-      if ($category->user_id && $category->user_id !== Auth::id()) {
-         return response()->json(['error' => 'Unauthorized'], 403);
-      }
-
       return response()->json($category);
    }
 
@@ -97,14 +93,6 @@ class CategoryController extends Controller
     */
    public function update(Request $request, Category $category)
    {
-      if ($category->isDefault()) {
-         return response()->json(['error' => 'Default categories cannot be updated.'], 403);
-      }
-
-      if ($category->user_id !== Auth::id()) {
-         return response()->json(['error' => 'Unauthorized'], 403);
-      }
-
       $request->validate([
          'name' => 'sometimes|required|string|max:255',
          'type' => 'sometimes|in:default,income,expense',

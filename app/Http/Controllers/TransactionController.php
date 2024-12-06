@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\CategoryType;
+use App\Models\Category;
 
 class TransactionController extends Controller
 {
@@ -13,11 +15,9 @@ class TransactionController extends Controller
     */
    public function index()
    {
-      if (!Auth::check()) {
-         return response()->json(['error' => 'Unauthorized'], 401);
-      }
-
-      $transactions = Transaction::where('user_id', Auth::id())->with('category')->get();
+      $transactions = Transaction::where('user_id', Auth::id())
+         ->with('category')
+         ->get();
 
       return response()->json($transactions);
    }
@@ -37,7 +37,7 @@ class TransactionController extends Controller
    {
       $request->validate([
          'category_id' => 'required|exists:categories,id',
-         'description' => 'nullable|string|max:255',
+         'title' => 'nullable|string|max:255',
          'amount' => 'required|numeric|min:0',
          'transaction_date' => 'required|date',
       ]);
@@ -45,7 +45,7 @@ class TransactionController extends Controller
       $transaction = Transaction::create([
          'user_id' => Auth::id(),
          'category_id' => $request->category_id,
-         'description' => $request->description,
+         'title' => $request->title,
          'amount' => $request->amount,
          'transaction_date' => $request->transaction_date,
       ]);
@@ -58,10 +58,6 @@ class TransactionController extends Controller
     */
    public function show(Transaction $transaction)
    {
-      if ($transaction->user_id !== Auth::id()) {
-         return response()->json(['error' => 'Unauthorized'], 403);
-      }
-
       return response()->json($transaction->load('category'));
    }
 
@@ -78,18 +74,14 @@ class TransactionController extends Controller
     */
    public function update(Request $request, Transaction $transaction)
    {
-      if ($transaction->user_id !== Auth::id()) {
-         return response()->json(['error' => 'Unauthorized'], 403);
-      }
-
       $request->validate([
          'category_id' => 'sometimes|exists:categories,id',
-         'description' => 'nullable|string|max:255',
+         'title' => 'nullable|string|max:255',
          'amount' => 'required|numeric|min:0',
          'transaction_date' => 'required|date',
       ]);
 
-      $transaction->update($request->only('category_id', 'description', 'amount', 'transaction_date'));
+      $transaction->update($request->only('category_id', 'title', 'amount', 'transaction_date'));
 
       return response()->json(['transaction' => $transaction, 'message' => 'Transaction updated successfully.']);
    }
@@ -99,10 +91,6 @@ class TransactionController extends Controller
     */
    public function destroy(Transaction $transaction)
    {
-      if ($transaction->user_id !== Auth::id()) {
-         return response()->json(['error' => 'Unauthorized'], 403);
-      }
-
       $transaction->delete();
 
       return response()->json(['message' => 'Transaction deleted successfully.']);

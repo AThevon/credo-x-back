@@ -16,41 +16,41 @@ use App\Models\Transaction;
 
 // GUEST ROUTES (Accessible without authentication)
 Route::middleware(['guest'])->group(function () {
-  // Registration and Login
-  Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
+   // Registration and Login
+   Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
-  // Password Reset
-  Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-  Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+   // Password Reset
+   Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+   Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
 
 // AUTHENTICATED USER ROUTES (Require auth:sanctum middleware)
 Route::middleware(['auth:sanctum'])->group(function () {
-  // User Account Management
-  Route::get('/user', [RegisteredUserController::class, 'show'])->name('user.show');
-  Route::put('/user', [RegisteredUserController::class, 'update'])->name('user.update');
-  Route::put('/user/password', [RegisteredUserController::class, 'updatePassword'])->name('user.updatePassword');
-  Route::delete('/user', [RegisteredUserController::class, 'destroy'])->name('user.destroy');
+   // User Account Management
+   Route::get('/user', [RegisteredUserController::class, 'show'])->name('user.show');
+   Route::put('/user', [RegisteredUserController::class, 'update'])->name('user.update');
+   Route::put('/user/password', [RegisteredUserController::class, 'updatePassword'])->name('user.updatePassword');
+   Route::delete('/user', [RegisteredUserController::class, 'destroy'])->name('user.destroy');
 
-  // Email Verification
-  Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])
-    ->middleware(['signed', 'throttle:6,1'])
-    ->name('verification.verify');
-  Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware('throttle:6,1')
-    ->name('verification.send');
+   // Email Verification
+   Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+      ->middleware(['signed', 'throttle:6,1'])
+      ->name('verification.verify');
+   Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+      ->middleware('throttle:6,1')
+      ->name('verification.send');
 
-  // Categories
-  Route::prefix('categories')->group(function () {
-    // Route pour get toutes les catégories (CRUD avec apiResource)
-    Route::apiResource('/', CategoryController::class);
+   // Categories
+   Route::prefix('categories')->group(function () {
+      Route::apiResource('/', CategoryController::class);
+      Route::get('/{type}', [CategoryController::class, 'getByType'])
+         ->where('type', 'income|expense');
+   });
 
-    // Route pour get les catégories par type
-    Route::get('/{type}', [CategoryController::class, 'getByType'])
-      ->where('type', 'income|expense');
-  });
-
-  Route::apiResource('transactions', TransactionController::class);
+   // Transactions
+   Route::prefix('transactions')->group(function () {
+      Route::apiResource('/', TransactionController::class);
+   });
 
 });
