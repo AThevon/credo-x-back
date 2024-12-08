@@ -13,6 +13,28 @@ class TransactionController extends Controller
    /**
     * Display a listing of the resource.
     */
+   public function getTotals()
+   {
+      $totalIncome = (float) Transaction::where('user_id', Auth::id())
+         ->whereHas('category', function ($query) {
+            $query->where('type', CategoryType::Income);
+         })
+         ->sum('amount');
+
+      $totalExpense = (float) Transaction::where('user_id', Auth::id())
+         ->whereHas('category', function ($query) {
+            $query->where('type', CategoryType::Expense);
+         })
+         ->sum('amount');
+
+      $totalBalance = $totalIncome - $totalExpense;
+
+      return response()->json([
+         'income' => $totalIncome,
+         'expense' => $totalExpense,
+         'balance' => $totalBalance,
+      ]);
+   }
    public function index()
    {
       $transactions = Transaction::where('user_id', Auth::id())
@@ -46,7 +68,7 @@ class TransactionController extends Controller
          'user_id' => Auth::id(),
          'category_id' => $request->category_id,
          'title' => $request->title,
-         'amount' => $request->amount,
+         'amount' => (float) $request->amount,
          'transaction_date' => $request->transaction_date,
       ]);
 

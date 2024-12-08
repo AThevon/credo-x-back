@@ -14,6 +14,10 @@ class Transaction extends Model
       'transaction_date',
    ];
 
+   protected $casts = [
+      'amount' => 'float', // Assure un cast automatique
+   ];
+
    /**
     * Relation avec l'utilisateur.
     */
