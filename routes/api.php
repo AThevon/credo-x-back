@@ -49,9 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
    });
 
    // Transactions
-   Route::prefix('transactions')->group(function () {
-      Route::apiResource('/', TransactionController::class);
-      Route::get('/totals', [TransactionController::class, 'getTotals']);
-   });
+   Route::apiResource('transactions', TransactionController::class);
+   Route::get('transactions-totals', [TransactionController::class, 'getTotals']);
 
 });
