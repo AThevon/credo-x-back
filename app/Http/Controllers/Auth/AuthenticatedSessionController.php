@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Passport\PersonalAccessTokenResult;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -18,16 +20,24 @@ class AuthenticatedSessionController extends Controller
     */
    public function store(LoginRequest $request): JsonResponse
    {
+      // Récupérer l'utilisateur par email
       $user = User::where('email', $request->email)->first();
 
+      // Vérifier les informations d'identification
       if (!$user || !Hash::check($request->password, $user->password)) {
          return response()->json(['error' => 'The provided credentials are incorrect.'], 401);
       }
 
-      // Connecter l'utilisateur via Laravel Auth (session)
-      Auth::login($user);
+      // Générer un token Passport
+      $tokenResult = $user->createToken('AppToken');
 
-      return response()->json(['user' => $user], 200);
+      // Retourner le token et les infos utilisateur
+      return response()->json([
+         'user' => $user,
+         'token' => $tokenResult->accessToken,
+         'token_type' => 'Bearer',
+         'expires_at' => $tokenResult->token->expires_at,
+      ], 200);
    }
 
    /**
@@ -35,17 +45,11 @@ class AuthenticatedSessionController extends Controller
     */
    public function destroy(Request $request): JsonResponse
    {
-      // Déconnecter l'utilisateur (session)
-      Auth::logout();
+      // Récupérer le token actuel
+      $request->user()->token()->revoke();
 
-      // Invalider la session
-      $request->session()->invalidate();
-      $request->session()->regenerateToken();
-
-      // Supprimer le cookie CSRF
-      $cookie = cookie()->forget('XSRF-TOKEN');
-
-      // Retourner une réponse JSON sans redirection
-      return response()->json(['message' => 'Logged out successfully'], 200)->withCookie($cookie);
+      return response()->json([
+         'message' => 'Logged out successfully. Token revoked.',
+      ], 200);
    }
 }

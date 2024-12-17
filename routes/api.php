@@ -9,10 +9,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-
-use App\Models\Transaction;
-
-
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // GUEST ROUTES (Accessible without authentication)
 Route::middleware(['guest'])->group(function () {
@@ -25,8 +22,11 @@ Route::middleware(['guest'])->group(function () {
 });
 
 
-// AUTHENTICATED USER ROUTES (Require auth:sanctum middleware)
-Route::middleware(['auth:sanctum'])->group(function () {
+// AUTHENTICATED USER ROUTES (Require api guards)
+Route::middleware(['auth:api'])->group(function () {
+   // Logout
+   Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
    // User Account Management
    Route::get('/user', [RegisteredUserController::class, 'show'])->name('user.show');
    Route::put('/user', [RegisteredUserController::class, 'update'])->name('user.update');

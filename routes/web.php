@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SocialiteController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Laravel\Passport\Http\Controllers\AuthorizationController;
 
 Route::get('/', function () {
   return ['Laravel' => app()->version()];
@@ -13,10 +13,13 @@ Route::get('/sanctum/csrf-cookie', function () {
 });
 
 Route::middleware(['web'])->group(function () {
-  Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
-  Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
   Route::get('/auth/google/redirect', [SocialiteController::class, 'redirectToGoogle']);
   Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+});
+
+Route::middleware(['passport.stateless'])->group(function () {
+   Route::post('/oauth/token', [AuthorizationController::class, 'token']);
+   Route::get('/oauth/authorize', [AuthorizationController::class, 'authorize']);
 });
 
 
