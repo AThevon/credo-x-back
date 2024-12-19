@@ -8,9 +8,9 @@ Route::get('/', function () {
   return ['Laravel' => app()->version()];
 });
 
-Route::get('/sanctum/csrf-cookie', function () {
-  return response()->json(['message' => 'CSRF cookie set']);
-});
+// Route::get('/sanctum/csrf-cookie', function () {
+//   return response()->json(['message' => 'CSRF cookie set']);
+// });
 
 Route::middleware(['web'])->group(function () {
   Route::get('/auth/google/redirect', [SocialiteController::class, 'redirectToGoogle']);

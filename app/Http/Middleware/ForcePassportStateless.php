@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Passport\Passport;
+
 
 class ForcePassportStateless
 {
@@ -11,6 +13,7 @@ class ForcePassportStateless
    {
       // Force le guard API
       Auth::setDefaultDriver('api');
+      Passport::withoutCookieSerialization();
       return $next($request);
    }
 }

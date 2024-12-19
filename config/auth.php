@@ -36,14 +36,8 @@ return [
    */
 
    'guards' => [
-      'web' => [
-         'driver' => 'session',
-         'provider' => 'users',
-      ],
-
-      // Nouveau guard pour Passport
       'api' => [
-         'driver' => 'passport', // Utilise Passport comme driver
+         'driver' => 'passport', 
          'provider' => 'users',
       ],
    ],
